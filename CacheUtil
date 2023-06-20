@@ -1,0 +1,345 @@
+
+
+/**
+ * Copyright (C) 2011-2021 liepin Inc.All Rights Reserved.
+ *
+ * FileName:  CacheUtil
+ *
+ * Description：redisClient  工具包
+ *
+ * History：
+ * 版本号           作者                  日期               简要介绍相关操作
+ *  1.0   zhuxudong   2020   2020/3/8
+ *
+ */
+public class CacheUtil {
+
+
+    private static volatile IRedisCacheClient client = null;
+
+    private static final MonitorLogger monitorLogger = MonitorLogger.getInstance();
+
+    private static IRedisCacheClient getInstance() {
+
+        if (null == client) {
+            synchronized (CacheUtil.class) {
+                if (null == client) {
+                    client = (IRedisCacheClient) SpringContextUtil.getBean("redisShardClient");
+                }
+            }
+        }
+
+        return client;
+    }
+
+    private static final Integer RETRY_TIME = 3;
+
+    public static void setSadd(String key, Set<String> set) {
+
+        if (CollectionUtils.isEmpty(set)) {
+            return;
+        }
+        getInstance().setSadd(key, set.toArray(new String[set.size()]));
+    }
+
+
+    public static void setSrem(String key, String member) {
+
+        if (StringUtils.isBlank(key)) {
+            return;
+        }
+
+        CacheUtil.getInstance().setSrem(key, member);
+    }
+
+    public static Set<String> setSmembers(String key) {
+
+        if (StringUtils.isBlank(key)) {
+            return null;
+        }
+
+        Set<String> set = getInstance().setSmembers(key);
+
+        if (CollectionUtils.isEmpty(set)) {
+            return new HashSet<>();
+        }
+
+        TreeSet<String> treeSet = new TreeSet<>(set);
+
+        return treeSet;
+    }
+
+
+    public static String hashHget(String hashKey, String field) {
+
+        if (StringUtils.isBlank(hashKey)) {
+            return null;
+        }
+        for (int i = 0; i < RETRY_TIME; i++) {
+            try {
+                return getInstance().hashHget(hashKey, field);
+            } catch (Exception e) {
+                monitorLogger.log("RETRY_COUNT=" + RETRY_TIME + "redis hashHget error:" + e.getMessage());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100L);
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        return null;
+    }
+    
+    public static boolean hashHset(String key, String field, String value) {
+        boolean res = false;
+        try {
+            res = getInstance().hashHset(key, field, value);
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+
+        return res;
+    }
+
+    
+
+    public static Object get(String key) {
+
+        if (StringUtils.isBlank(key)) {
+            return null;
+        }
+
+        for (int i = 0; i < RETRY_TIME; i++) {
+            try {
+                return getInstance().get(key);
+            } catch (Exception e) {
+                monitorLogger.log("RETRY_COUNT=" + RETRY_TIME + "redis get error:" + e.getMessage());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100L);
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        return null;
+    }
+
+    public static void set(String key, Object object) {
+        if (StringUtils.isBlank(key)) {
+            return;
+        }
+
+        for (int i = 0; i < RETRY_TIME; i++) {
+            try {
+                getInstance().set(key, object);
+                break;
+            } catch (Exception e) {
+                monitorLogger.log("RETRY_COUNT=" + RETRY_TIME + "redis set error:" + e.getMessage());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100L);
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
+    public static void set(String key, Object object, Integer expire) {
+        if (StringUtils.isBlank(key)) {
+            return;
+        }
+
+        for (int i = 0; i < RETRY_TIME; i++) {
+            try {
+                getInstance().set(key, object, expire);
+                break;
+            } catch (Exception e) {
+                monitorLogger.log("RETRY_COUNT=" + RETRY_TIME + "redis set error:" + e.getMessage());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100L);
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
+
+    public static void keyDel(String key) {
+        if (StringUtils.isBlank(key)) {
+            return;
+        }
+
+        for (int i = 0; i < RETRY_TIME; i++) {
+            try {
+                getInstance().keyDel(key);
+                break;
+            } catch (Exception e) {
+                monitorLogger.log("RETRY_COUNT=" + RETRY_TIME + "redis keyDel error:" + e.getMessage());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100L);
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
+    public static void keyExpire(String key, Integer seconds) {
+
+        if (StringUtils.isBlank(key)) {
+            return;
+        }
+
+        for (int i = 0; i < RETRY_TIME; i++) {
+            try {
+                getInstance().keyExpire(key, seconds);
+                break;
+            } catch (Exception e) {
+                monitorLogger.log("RETRY_COUNT=" + RETRY_TIME + "redis keyExpire error:" + e.getMessage());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100L);
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+    }
+
+    public static void delete(String key) {
+
+        if (StringUtils.isBlank(key)) {
+            return;
+        }
+
+        getInstance().delete(key);
+    }
+
+    public static Boolean stringSetnx(String key, String value) {
+
+        Boolean result = true;
+
+        for (int i = 0; i < RETRY_TIME; i++) {
+            try {
+                result = getInstance().stringSetnx(key, value);
+                break;
+            } catch (Exception e) {
+                monitorLogger.log("RETRY_COUNT=" + RETRY_TIME + "redis stringSetnx error:" + e.getMessage());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100L);
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        return result;
+    }
+
+    public static Boolean stringSetex(String key, String value, Integer expire) {
+
+        Boolean result = true;
+
+        for (int i = 0; i < RETRY_TIME; i++) {
+            try {
+                result = getInstance().stringSetex(key, value, expire);
+                break;
+            } catch (Exception e) {
+                monitorLogger.log("RETRY_COUNT=" + RETRY_TIME + "redis stringSetex error:" + e.getMessage());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100L);
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        return result;
+    }
+
+
+    public static Long listLlen(String key) {
+
+        Long result = null;
+        for (int i = 0; i < RETRY_TIME; i++) {
+            try {
+                result = getInstance().listLlen(key);
+                break;
+            } catch (Exception e) {
+                monitorLogger.log("RETRY_COUNT=" + RETRY_TIME + "redis listLlen error:" + e.getMessage());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100L);
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+        return result;
+    }
+
+    public static String stringGet(String key) {
+
+        String result = "";
+
+        for (int i = 0; i < RETRY_TIME; i++) {
+            try {
+                result = getInstance().stringGet(key);
+                break;
+            } catch (Exception e) {
+                monitorLogger.log("RETRY_COUNT=" + RETRY_TIME + "redis stringGet error:" + e.getMessage());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100L);
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public static String stringGetWithException(String key) {
+
+        return getInstance().stringGet(key);
+    }
+
+    public static Long sortSetZadd(String key, String member, double score) {
+
+        Long result = null;
+
+        for (int i = 0; i < RETRY_TIME; i++) {
+            try {
+                result = getInstance().sortSetZadd(key, member, score);
+                break;
+            } catch (Exception e) {
+                monitorLogger.log("RETRY_COUNT=" + RETRY_TIME + "redis sortSetZadd error:" + e.getMessage());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100L);
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
+        return result;
+    }
+
+    public static Set<String> sortSetZrangeByScore(String key, double min, double max) {
+
+        Set<String> result = null;
+
+        for (int i = 0; i < RETRY_TIME; i++) {
+            try {
+                result = getInstance().sortSetZrangeByScore(key, min, max);
+                break;
+            } catch (Exception e) {
+                monitorLogger.log("RETRY_COUNT=" + RETRY_TIME + "redis sortSetZadd error:" + e.getMessage());
+                try {
+                    TimeUnit.MILLISECONDS.sleep(100L);
+                } catch (InterruptedException e1) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }
+
+        return result;
+    }
+}
