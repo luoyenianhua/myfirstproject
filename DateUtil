@@ -1,24 +1,4 @@
-/**
- *
- */
-package com.liepin.xingyun.utils;
 
-import com.liepin.common.other.StringUtil;
-import com.liepin.swift.core.exception.BizException;
-import com.liepin.swift.core.log.MonitorLogger;
-import org.apache.commons.lang.time.DateFormatUtils;
-import org.apache.commons.lang.time.DateUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-import java.util.Date;
 
 /**
  * 时间工具类
