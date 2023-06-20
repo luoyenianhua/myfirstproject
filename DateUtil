@@ -1,0 +1,530 @@
+/**
+ *
+ */
+package com.liepin.xingyun.utils;
+
+import com.liepin.common.other.StringUtil;
+import com.liepin.swift.core.exception.BizException;
+import com.liepin.swift.core.log.MonitorLogger;
+import org.apache.commons.lang.time.DateFormatUtils;
+import org.apache.commons.lang.time.DateUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.joda.time.DateTime;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
+
+/**
+ * 时间工具类
+ *
+ * @开发人员 guoxj@liepin.com
+ * @创建时间 2015年2月4日
+ * @修改时间 2015年2月4日
+ * @版本
+ */
+public class DateUtil {
+
+
+    public static final String YYYYMMDDHHMMSS = "yyyyMMddHHmmss";
+    public static final String YYYY_MM_DD_HH_MM_SS = "yyyy-MM-dd HH:mm:ss";
+    public static final String YYYY_MM_DD_T_HH_MM_SS_Z = "yyyy-MM-dd'T'HH:mm:ss'Z'";
+    public static final String YYYY_MM_DD = "yyyy-MM-dd";
+    public static final String YYYY_MM_DD_HH_MM_SS_S = "yyyy-MM-dd HH:mm:ss.S";
+
+    public static final DateTimeFormatter YYYY_MM_DD_HH_MM_SS_FORMATTER = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS);
+    public static final DateTimeFormatter YYYYMMDDHHMMSS_FORMATTER = DateTimeFormatter.ofPattern(YYYYMMDDHHMMSS);
+    public static final DateTimeFormatter YYYYMMDDTHHMMSSZ_FORMATTER = DateTimeFormatter.ofPattern(YYYY_MM_DD_T_HH_MM_SS_Z);
+    public static final DateTimeFormatter YYYYMMDD_FORMATTER = DateTimeFormatter.ofPattern(YYYY_MM_DD);
+
+    public static final DateTimeFormatter YYYYMMDDHHMMSSS_FORMATTER = DateTimeFormatter.ofPattern(YYYY_MM_DD_HH_MM_SS_S);
+
+    /**
+     * 时间戳转换成command log时间格式。当大日志保存到数据库失败时，需要模拟真实数据将异常存入库中，此时需要一个时间。
+     * @param millisecond 时间戳
+     * @return command log时间格式
+     * @throws BizException 时间戳不合法
+     */
+    public static String convertMillisecond2CommandLogTime(long millisecond) throws BizException {
+        if (millisecond <= 0) {
+            throw new BizException("millisecond 不合法！");
+        }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        LocalDateTime localDateTime = LocalDateTime.ofEpochSecond(millisecond / 1000, 0, ZoneOffset.ofHours(8));
+        // command log 日志有17位 2021-04-21 19:00:07:933
+        return localDateTime.format(formatter) + "000";
+    }
+
+    /**
+     *
+     * @描述：将yyyyMMddHHmmss日期格式转换成yyyy-MM-dd HH:mm:ss日期格式
+     * @param time
+     * @return
+     * @throws ParseException
+     * @return String
+     * @exception @createTime：2017年9月21日
+     * @author: xuqinghou
+     */
+    public static String yyyyMMddHHmmss(String time) throws ParseException {
+        Date parseDate = DateUtils.parseDate(time, new String[]{"yyyyMMddHHmmss"});
+        return DateFormatUtils.format(parseDate, "yyyy-MM-dd HH:mm:ss");
+    }
+    
+    
+
+    public static String yyyyMMddHHmmss4Now() {
+        DateTime time = new DateTime(System.currentTimeMillis());
+        return time.toString("yyyy-MM-dd HH:mm:ss");
+    }
+
+    /**
+     *
+     * @描述：将yyyy-MM-dd HH:mm:ss日期格式转换成yyyyMMddHHmmss日期格式
+     * @param time
+     * @return
+     * @throws ParseException
+     * @return String
+     * @exception @createTime：2017年9月21日
+     * @author: xuqinghou
+     */
+    public static String yyyyMMddHHmmss2(String time) throws ParseException {
+        Date parseDate = DateUtils.parseDate(time, new String[]{"yyyy-MM-dd HH:mm:ss"});
+        return DateFormatUtils.format(parseDate, "yyyyMMddHHmmss");
+    }
+
+    /**
+     *
+     * @描述：将yyyy-MM-dd HH:mm:ss:SSS日期格式转换成yyyyMMddHHmmssSSS日期格式
+     * @param time
+     * @return
+     * @throws ParseException
+     * @return String
+     * @exception @createTime：2017年9月21日
+     * @author: xuqinghou
+     */
+    public static String yyyyMMddHHmmssms(String time) throws ParseException {
+        Date parseDate = DateUtils.parseDate(time, new String[]{"yyyyMMddHHmmssSSS"});
+        return DateFormatUtils.format(parseDate, "yyyy-MM-dd HH:mm:ss:SSS");
+    }
+
+    /**
+     *
+     * @描述：yyyy-MM-dd转换为long time
+     * @param time
+     * @return
+     * @throws ParseException
+     * @return long
+     * @exception @createTime：2017年9月21日
+     * @author: xuqinghou
+     */
+    public static long yyyyMMdd2time(String time) throws ParseException {
+        Date parseDate = DateUtils.parseDate(time, new String[]{"yyyy-MM-dd"});
+        return parseDate.getTime();
+    }
+
+    /**
+     *
+     * @描述：yyyyMMddHHmmssSSS转换为long time
+     * @param time
+     * @return
+     * @throws ParseException
+     * @return long
+     * @exception @createTime：2017年9月21日
+     * @author: xuqinghou
+     */
+    public static long yyyyMMddHHmmssms2time(String time) throws ParseException {
+        Date parseDate = DateUtils.parseDate(time, new String[]{"yyyyMMddHHmmssSSS"});
+        return parseDate.getTime();
+    }
+
+    /**
+     *
+     * @描述：yyyy-MM-dd HH:mm:ss转换为long time
+     * @param time
+     * @return
+     * @throws ParseException
+     * @return long
+     * @exception @createTime：2017年9月21日
+     * @author: xuqinghou
+     */
+    public static long yyyyMMddHHmmss2time(String time) throws ParseException {
+        Date parseDate = DateUtils.parseDate(time, new String[]{"yyyy-MM-dd HH:mm:ss"});
+        return parseDate.getTime();
+    }
+
+    /**
+     *
+     * @描述：转换为文字时间 多少天多少小时
+     * @param ms
+     * @return
+     * @return String
+     * @exception @createTime：2017年9月21日
+     * @author: xuqinghou
+     */
+    public static String formatTime(Long ms) {
+        Integer ss = 1000;
+        Integer mi = ss * 60;
+        Integer hh = mi * 60;
+        Integer dd = hh * 24;
+
+        Long day = ms / dd;
+        Long hour = (ms - day * dd) / hh;
+        Long minute = (ms - day * dd - hour * hh) / mi;
+        Long second = (ms - day * dd - hour * hh - minute * mi) / ss;
+        Long milliSecond = ms - day * dd - hour * hh - minute * mi - second * ss;
+
+        StringBuilder sb = new StringBuilder();
+        if (day > 0) {
+            sb.append(day + "天");
+        }
+        if (hour > 0) {
+            sb.append(hour + "小时");
+        }
+        if (minute > 0) {
+            sb.append(minute + "分");
+        }
+        if (second > 0) {
+            sb.append(second + "秒");
+        }
+        if (milliSecond > 0) {
+            sb.append(milliSecond + "毫秒");
+        }
+        return sb.toString();
+    }
+
+    /**
+     *
+     * @描述：获取当前时间yyyyMMddHHmmssSSS
+     * @return
+     * @return String
+     * @exception @createTime：2017年9月21日
+     * @author: xuqinghou
+     */
+    public static String getCurrentDateTime() {
+
+        Calendar calendar = Calendar.getInstance();
+
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(calendar.get(Calendar.YEAR));
+        int month = calendar.get(Calendar.MONTH) + 1;
+        if (month < 10) {
+            builder.append(0);
+        }
+        builder.append(month);
+        int date = calendar.get(Calendar.DATE);
+        if (date < 10) {
+            builder.append(0);
+        }
+        builder.append(date);
+
+        int hour = calendar.get(Calendar.HOUR_OF_DAY);
+        if (hour < 10) {
+            builder.append(0);
+        }
+        builder.append(hour);
+        int min = calendar.get(Calendar.MINUTE);
+        if (min < 10) {
+            builder.append(0);
+        }
+        builder.append(min);
+        int sec = calendar.get(Calendar.SECOND);
+        if (sec < 10) {
+            builder.append(0);
+        }
+        builder.append(sec);
+
+        int milliSecond = calendar.get(Calendar.MILLISECOND);
+        if (milliSecond < 10) {
+            builder.append(0);
+        }
+        builder.append(milliSecond);
+
+        return builder.toString();
+    }
+
+    /**
+     * 解析时间格式 yyyy-MM-dd HH:mm:ss.S===>MM月dd日 HH:mm:ss
+     *
+     * @param createtime
+     * @return
+     * @throws ParseException
+     * @return String
+     * @exception
+     * @createTime：2018年5月15日
+     * @author: runzhong.xie
+     */
+    public static String formatLastDeploytime(String createtime) throws ParseException {
+        if (StringUtils.isBlank(createtime)) {
+            return "";
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+        Date d = sdf.parse(createtime);
+        SimpleDateFormat sdf1 = new SimpleDateFormat("MM月dd日 HH:mm:ss");
+        String a = sdf1.format(d);
+        return a;
+    }
+
+    public static String formatLastDeploytimeByyyyymmddhhmmss(String createtime) {
+        if (StringUtils.isBlank(createtime)) {
+            return "";
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        Date d = null;
+        try {
+            d = sdf.parse(createtime);
+        } catch (ParseException e) {
+            MonitorLogger.getInstance().log("时间戳转换失败");
+            return "";
+        }
+        SimpleDateFormat sdf1 = new SimpleDateFormat("MM月dd日 HH:mm:ss");
+        String a = sdf1.format(d);
+        return a;
+    }
+
+    /**
+     * @描述 字符串转时间戳
+     * @param
+     * @return
+     * @author zhuxuedong
+     * @createtime 2019/7/8
+     * @exception
+     */
+    public static Long convertStr2TimeStamp(String dateTime) {
+
+        Long timeStamp = System.currentTimeMillis() / 1000L;
+
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+
+        try {
+            Date dateStart = format.parse(dateTime);
+
+            timeStamp = dateStart.getTime() / 1000L;
+        } catch (Exception e) {
+            MonitorLogger.getInstance().log("时间戳转换失败");
+        }
+
+        return timeStamp;
+    }
+
+    /**
+     * @描述 timestimp (秒) 转YYYYmmddHHmmss
+     * @param
+     * @return
+     * @author zhuxuedong
+     * @createtime 2019/3/13
+     * @exception
+     */
+    public static String convertTimeStamp2Str(Long timeStamp) {
+
+        Date date = new Date();
+        date.setTime(timeStamp * 1000L);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM月dd日 HH:mm:ss");
+        String publishTime = sdf.format(date);
+
+        return publishTime;
+    }
+
+    /**
+     * @描述 timestimp (毫秒) 转YYYYmmddHHmmss
+     * @param
+     * @return
+     * @author zhuxuedong
+     * @createtime 2019/3/13
+     * @exception
+     */
+    public static String convertTimeStampMS2Str(Long timeStamp) {
+
+        Date date = new Date();
+        date.setTime(timeStamp);
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MM月dd日 HH:mm:ss");
+        String publishTime = sdf.format(date);
+
+        return publishTime;
+    }
+
+    /**
+     * @描述 获取当前时间
+     * @param
+     * @return
+     * @author zhuxuedong
+     * @createtime 2019/8/14
+     * @exception
+     */
+    public static String getCurrentDateTimeWithSign() {
+        return new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S").format(new Date());
+    }
+
+    /**
+     * @描述 计算相差 多少秒
+     * @param
+     * @return second
+     * @exception
+     */
+    public static Long caculateDiffTime(String startDateTime, String endDateTime) {
+
+        Long start = convertStr2TimeStamp(startDateTime);
+        Long end = convertStr2TimeStamp(endDateTime);
+
+        Long second = end - start;
+
+        return second;
+    }
+
+
+    /**
+     * @描述 判断今天是星期几
+     * @param
+     * @return
+     * @author zhuxuedong
+     * @createtime 2020/6/19
+     * @exception
+     */
+    public static String getWeekOfDate(Date date) {
+
+        String[] weekDays = {"Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"};
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(date);
+        int w = cal.get(Calendar.DAY_OF_WEEK) - 1;
+        if (w < 0) {
+            w = 0;
+        }
+
+        return weekDays[w];
+    }
+
+    /**
+     *
+     * @描述：将yyyyMMddHHmmss日期格式转为时间戳
+     * @param time
+     * @return
+     * @throws ParseException
+     * @return String
+     * @exception @createTime：2021年6月7日
+     * @author: sf
+     */
+    public static Long yyyyMMddHHmmss2Timestamp(String time) {
+        Date parseDate = new Date();
+        try {
+            parseDate = DateUtils.parseDate(time, new String[]{"yyyyMMddHHmmss"});
+        } catch (ParseException e) {
+            MonitorLogger.getInstance().log("解析异常" + time);
+        }
+        return parseDate.getTime();
+    }
+
+    /**
+     *
+     * @描述：比较时间yyyyMMddHHmmss 大小
+     * @param t1
+     * @param t2
+     * @throws
+     * @return boolean
+     * @exception @createTime：2021年8月9日
+     * @author: sf
+     */
+    public static boolean compareTime(String t1, String t2) {
+        LocalDateTime time1 = LocalDateTime.parse(t1, YYYYMMDDHHMMSS_FORMATTER);
+        LocalDateTime time2 = LocalDateTime.parse(t2, YYYYMMDDHHMMSS_FORMATTER);
+        if (time1.compareTo(time2) < 0) {
+           return true;
+        }
+        return false;
+    }
+
+    /**
+     * 解析时间格式 yyyyMMddHHmmss===>yyyy-MM-dd HH:mm:ss.S
+     *
+     * @param createtime
+     * @return
+     * @throws ParseException
+     * @return String
+     * @exception
+     * @createTime：2018年5月15日
+     * @author: runzhong.xie
+     */
+    public static String formalYYYYMMDDHHMMSS(String createtime) throws ParseException {
+        if (StringUtils.isBlank(createtime)) {
+            return "";
+        }
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMddHHmmss");
+        Date d = sdf.parse(createtime);
+        SimpleDateFormat sdf1 = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+        String a = sdf1.format(d);
+        return a;
+    }
+
+    /**
+     * @Description 调整时间格式
+     * @param timeStr
+     * @return
+     */
+    public static String convertTimeStr4Show(String timeStr) {
+        if (!StringUtil.isBlank(timeStr) && timeStr.trim().length() >= 14) {
+            StringBuilder resultBu = new StringBuilder("");
+            String todayStr = com.liepin.common.other.DateUtil.getCurrentDate();
+            if (todayStr.equals(timeStr.substring(0, 8))) {
+                resultBu.append("今天 ");
+            } else {
+                String yesterdayStr = com.liepin.common.other.DateUtil.getDate(-1);
+                if (yesterdayStr.equals(timeStr.substring(0, 8))) {
+                    resultBu.append("昨天 ");
+                } else {
+                    resultBu.append(timeStr.substring(0, 4)).append("-");
+                    resultBu.append(timeStr.substring(4, 6)).append("-");
+                    resultBu.append(timeStr.substring(6, 8)).append(" ");
+                }
+            }
+
+            resultBu.append(timeStr.substring(8, 10)).append(":");
+            resultBu.append(timeStr.substring(10, 12)).append(":");
+            resultBu.append(timeStr.substring(12, 14));
+            return resultBu.toString();
+        } else {
+            return timeStr;
+        }
+    }
+
+    /**
+     * 时间字符串转为date
+     * @param time
+     * @return
+     */
+    public static Date YYYYMMDDHHMMSS2Date(String time) {
+
+        LocalDateTime parse = LocalDateTime.parse(time, YYYY_MM_DD_HH_MM_SS_FORMATTER);
+
+        Date date = Date.from(parse.atZone(ZoneId.systemDefault()).toInstant());
+
+        return date;
+    }
+
+    public static String yyyymmddhhmmsss2yyyymmddhhmmss(String time) {
+//        LocalDateTime parse = LocalDateTime.parse(time, YYYYMMDDHHMMSSS_FORMATTER);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+        String publishTime = "";
+        try {
+            Date date = format.parse(time);
+
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy年MM月dd日 HH:mm:ss");
+            publishTime = sdf.format(date);
+
+        } catch (Exception e) {
+            MonitorLogger.getInstance().log("时间戳转换失败");
+        }
+        return publishTime;
+    }
+
+    public static String getYyyymmddhhmmss() {
+        return LocalDateTime.now().format(YYYYMMDDHHMMSS_FORMATTER);
+    }
+
+}
